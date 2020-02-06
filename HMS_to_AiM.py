@@ -29,8 +29,20 @@ class AiM():
         self.driver.find_element(By.ID, "password").send_keys(password)
         self.driver.find_element(By.ID, "login").click()
 
-    def customer_request(self,description,reference,property="51000"):
-        return None
+    def customer_request(self,description,reference,location,property="51000"):
+        self.driver.find_element(By.ID, "mainForm:menuListMain:CUSTSERVICE").click()
+        self.driver.find_element(By.ID, "mainForm:menuListMain:new_CRQ_VIEW").click()
+        aim_des = location + " - " + description
+        self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:ae_p_req_e_description").send_keys(aim_des)
+        self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:locZoomType1:locZoomType1-2").send_keys(property)
+        self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CRQ_EDIT_content\\3AlocZoomType1\\3AlocZoomType1-2_button > .halflings").click()
+        self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:referenceNoValueType1").send_keys(reference)
+        self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
+        aim_CR = self.driver.find_element(By.ID,"mainForm:CRQ_VIEW_content:ae_p_req_e_doc_no").text
+        self.driver.find_element(By.ID,"mainForm:headerInclude:aimTitle1").click()
+        return aim_CR
+
+
 
 class ResCenter():
     def setup_method(self):
@@ -52,7 +64,7 @@ class ResCenter():
 
     def search(self):
         # self.driver.find_element(By.CSS_SELECTOR, ".fa-bars").click()
-
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "FacilitiesModule")))
         self.driver.find_element(By.ID, "FacilitiesModule").click()
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Maintenance")))
         self.driver.find_element(By.LINK_TEXT, "Maintenance").click()
@@ -74,16 +86,65 @@ class ResCenter():
         location_res = self.driver.find_element(By.ID, "ctl00_mainContent_FacilityLookup_txtFacilityNameSearch").get_attribute("value")
         return (WO_res,description_res,location_res)
 
+    def edit(self,aim_cr,res_des):
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton")))
+        self.driver.find_element(By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton").click()
+
+        time.sleep(5)
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_ddWOStatus")))
+        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
+        dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus")
+        dropdown.find_element(By.XPATH, "//option[. = 'Assigned']").click() # change status to "Assigned"
+        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_ddWOType")))
+        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOType").click()
+        dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOType")
+        dropdown.find_element(By.XPATH, "//option[. = 'General']").click() # change type to "General"
+        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOType").click()
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_ddWOPriority")))
+        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority").click()
+        dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority") # change priority to "Normal"
+        dropdown.find_element(By.XPATH, "//option[. = 'Normal']").click()
+        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority").click()
+
+        print ("AiM WO/CR# "+aim_cr+" - "+res_des)
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea")))
+        actions = ActionChains(self.driver)
+        actions.move_to_element(self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea"))
+        actions.click()
+        actions.send_keys(Keys.BACKSPACE*5)
+        actions.send_keys("AiM WO/CR# ")
+        actions.perform()
+
+        print("???")
+        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").click()
+        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").send_keys(Keys.CONTROL+"a")
+        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").send_keys(Keys.BACKSPACE)
+        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").clear()
+        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").send_keys("AiM WO/CR# "+aim_cr+" - "+res_des)
+        time.sleep(100)
+        # WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton")))
+        # self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
+
+        # WebDriverWait(self.driver, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
+        # self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+
 if __name__ == '__main__':
-    # aim_window = AiM()
+    aim_window = AiM()
     res_window = ResCenter()
 
-    # aim_window.setup_method()
+    aim_window.setup_method()
     res_window.setup_method()
 
-    # aim_window.login()
+    aim_window.login()
     res_window.login()
-    res_window.search()
-    res_Wo,res_des,res_loc = res_window.top_record()
 
-    time.sleep(10)
+    res_window.search()
+    res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
+    print (res_Wo,res_des,res_loc)
+    aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
+    print (aim_CR)
+    res_window.edit(aim_CR,res_des) # update in ResCenter
+
+
+    # time.sleep(100)
