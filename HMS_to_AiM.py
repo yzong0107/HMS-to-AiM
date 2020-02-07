@@ -90,7 +90,7 @@ class ResCenter():
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton")))
         self.driver.find_element(By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton").click()
 
-        time.sleep(5)
+        time.sleep(2) # explicitly wait for 2 seconds before the page is updated
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_ddWOStatus")))
         self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
         dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus")
@@ -107,27 +107,18 @@ class ResCenter():
         dropdown.find_element(By.XPATH, "//option[. = 'Normal']").click()
         self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority").click()
 
-        print ("AiM WO/CR# "+aim_cr+" - "+res_des)
         WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea")))
         actions = ActionChains(self.driver)
         actions.move_to_element(self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea"))
         actions.click()
-        actions.send_keys(Keys.BACKSPACE*5)
-        actions.send_keys("AiM WO/CR# ")
-        actions.perform()
+        actions.send_keys(" - AiM CR# "+aim_cr).perform()
 
-        print("???")
-        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").click()
-        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").send_keys(Keys.CONTROL+"a")
-        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").send_keys(Keys.BACKSPACE)
-        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").clear()
-        # self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea").send_keys("AiM WO/CR# "+aim_cr+" - "+res_des)
-        time.sleep(100)
-        # WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton")))
-        # self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
 
-        # WebDriverWait(self.driver, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
-        # self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton")))
+        self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
+        WebDriverWait(self.driver, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
+        self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+        time.sleep(5)
 
 if __name__ == '__main__':
     aim_window = AiM()
