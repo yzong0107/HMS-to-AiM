@@ -11,6 +11,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import getpass
+import traceback
+import sys
 
 class AiM():
     def setup_method(self):
@@ -86,41 +88,43 @@ class ResCenter():
         location_res = self.driver.find_element(By.ID, "ctl00_mainContent_FacilityLookup_txtFacilityNameSearch").get_attribute("value")
         return (WO_res,description_res,location_res)
 
-    def edit(self,aim_cr,res_des):
+    def edit(self,aim_cr):
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton")))
         self.driver.find_element(By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton").click()
 
         time.sleep(2) # explicitly wait for 2 seconds before the page is updated
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_ddWOStatus")))
-        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
-        dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus")
-        dropdown.find_element(By.XPATH, "//option[. = 'Assigned']").click() # change status to "Assigned"
-        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_ddWOType")))
-        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOType").click()
-        dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOType")
-        dropdown.find_element(By.XPATH, "//option[. = 'General']").click() # change type to "General"
-        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOType").click()
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_ddWOPriority")))
-        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority").click()
-        dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority") # change priority to "Normal"
-        dropdown.find_element(By.XPATH, "//option[. = 'Normal']").click()
-        self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority").click()
 
-        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea")))
+        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
+        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOType']/option[text()='General']").click()
+        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOPriority']/option[text()='Normal']").click()
+
+        # WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea")))
         actions = ActionChains(self.driver)
-        actions.move_to_element(self.driver.find_element(By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea"))
+        actions.move_to_element(self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_FancyTextBoxTextArea"))
         actions.click()
-        actions.send_keys(" - AiM CR# "+aim_cr).perform()
+        actions.key_down(Keys.CONTROL)
+        actions.send_keys(Keys.HOME)
+        actions.key_up(Keys.CONTROL)
+        # actions.send_keys(Keys.CONTROL+Keys.HOME)
+        actions.send_keys("AiM CR# "+aim_cr+" - ").perform()
 
-
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton")))
+        time.sleep(1)
         self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
-        WebDriverWait(self.driver, 100).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
-        self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
-        time.sleep(5)
+        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
+        self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+        # pop_message = self.driver.find_element_by_css_selector(".alert > span").text
+        # if pop_message=="Work Order successfully updated":
+        #     self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+        #     return True
+        # else:
+        #     self.driver.find_element(By.ID,"ctl00_mainContent_btnTopCancel_CBORDLinkButton").click()
+        #     WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton")))
+        #     self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+        #     return False
 
 if __name__ == '__main__':
+    start_time = time.time()
+
     aim_window = AiM()
     res_window = ResCenter()
 
@@ -131,11 +135,23 @@ if __name__ == '__main__':
     res_window.login()
 
     res_window.search()
-    res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
-    print (res_Wo,res_des,res_loc)
-    aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
-    print (aim_CR)
-    res_window.edit(aim_CR,res_des) # update in ResCenter
 
+    try:
+        for i in range(3):
+            res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
+            aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
+            res_window.edit(aim_CR)
+            print("ResCenter WO# {0} has been processed!".format(res_Wo))
+            # saved= res_window.edit(aim_CR) # update in ResCenter
+            # if saved:
+            #     print ("ResCenter WO# {0} has been processed!".format(res_Wo))
+            # else:
+            #     print ("Errors on WO# {0}!".format(res_Wo))
 
-    # time.sleep(100)
+    except:
+        print(traceback.format_exc())
+        time.sleep(100)
+
+    time_taken = time.time()-start_time
+    print ("Time taken {0}s".format(time_taken))
+    time.sleep(100)
