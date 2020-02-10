@@ -19,7 +19,7 @@
 
    ![aim CR no](images/aim_CR_no.png)
 
-6. update ResCenter records, description -> “AiM CR #### - ”original description
+6. update ResCenter records, description -> “AiM CR ##### - ”original description
 
    ![res_update](images/res_update.png)
 
