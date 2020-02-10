@@ -1,7 +1,5 @@
 __author__ = "Tim Zong"
-import pytest
 import time
-import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
@@ -24,7 +22,8 @@ class AiM():
 
     def login(self):
         self.driver.get("https://www.aimdemo.ualberta.ca/fmax/login")
-        self.driver.set_window_size(1900, 1020)
+        self.driver.maximize_window()
+        # self.driver.set_window_size(1900, 1020)
         username = input('Enter your username (AiM): ')
         password = getpass.getpass('Enter your password (AiM): ')
         self.driver.find_element(By.ID, "username").send_keys(username)
@@ -112,14 +111,15 @@ class ResCenter():
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
         self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
         # pop_message = self.driver.find_element_by_css_selector(".alert > span").text
+        # pop_message = self.driver.find_element_by_css_selector("ul:nth-child(3) > li").text
         # if pop_message=="Work Order successfully updated":
         #     self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
-        #     return True
+        #     return True,None
         # else:
         #     self.driver.find_element(By.ID,"ctl00_mainContent_btnTopCancel_CBORDLinkButton").click()
         #     WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton")))
         #     self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
-        #     return False
+        #     return False,pop_message
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -136,16 +136,16 @@ if __name__ == '__main__':
     res_window.search()
 
     try:
-        for i in range(5):
+        for i in range(1):
             res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
             aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
             res_window.edit(aim_CR)
             print("ResCenter WO# {0} has been processed!".format(res_Wo))
-            # saved= res_window.edit(aim_CR) # update in ResCenter
+            # saved,message= res_window.edit(aim_CR) # update in ResCenter
             # if saved:
             #     print ("ResCenter WO# {0} has been processed!".format(res_Wo))
             # else:
-            #     print ("Errors on WO# {0}!".format(res_Wo))
+            #     print ("Errors on WO# {0}! {1}".format(res_Wo,message))
 
     except:
         # if there is any error, stops
