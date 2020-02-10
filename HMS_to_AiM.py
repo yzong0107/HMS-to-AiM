@@ -136,7 +136,7 @@ if __name__ == '__main__':
     res_window.search()
 
     try:
-        for i in range(1):
+        for i in range(5):
             res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
             aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
             res_window.edit(aim_CR)
