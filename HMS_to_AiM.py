@@ -94,21 +94,20 @@ class ResCenter():
 
         time.sleep(2) # explicitly wait for 2 seconds before the page is updated
 
-        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
-        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOType']/option[text()='General']").click()
-        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOPriority']/option[text()='Normal']").click()
-
-        # WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "ctl00_mainContent_txtDescription_FancyTextBoxTextArea")))
         actions = ActionChains(self.driver)
         actions.move_to_element(self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_FancyTextBoxTextArea"))
         actions.click()
         actions.key_down(Keys.CONTROL)
         actions.send_keys(Keys.HOME)
         actions.key_up(Keys.CONTROL)
-        # actions.send_keys(Keys.CONTROL+Keys.HOME)
-        actions.send_keys("AiM CR# "+aim_cr+" - ").perform()
+        actions.send_keys("AiM CR "+aim_cr+" - ")
+        actions.perform()
+        # time.sleep(100)
 
-        time.sleep(1)
+        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
+        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOType']/option[text()='General']").click()
+        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOPriority']/option[text()='Normal']").click()
+
         self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
         self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
@@ -137,7 +136,7 @@ if __name__ == '__main__':
     res_window.search()
 
     try:
-        for i in range(3):
+        for i in range(1):
             res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
             aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
             res_window.edit(aim_CR)
@@ -149,6 +148,7 @@ if __name__ == '__main__':
             #     print ("Errors on WO# {0}!".format(res_Wo))
 
     except:
+        # if there is any error, stops
         print(traceback.format_exc())
         time.sleep(100)
 
