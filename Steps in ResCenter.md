@@ -1,0 +1,32 @@
+# Steps in ResCenter
+
+1. Login, go to Facilities->Work Orders
+2. Change status to "NEW"
+
+![search](images/search.png)
+
+3. Select the top record from the list.
+
+![top record](images/select.png)
+
+4. Read & store information
+
+   ![res_info](images/store_res.png)
+
+5. Log customer request into AiM
+
+   ![aim](images/aim.png)
+
+   ![aim CR no](images/aim_CR_no.png)
+
+6. update ResCenter records, description -> “AiM CR #### - ”original description
+
+   ![res_update](images/res_update.png)
+
+7. Wait until the success alert pops up, then close it and go back to the search page.
+
+   ![res_save](images/res_saved.png)
+
+8. Go to the next record, and proceed.
+
+   ![res next](images/res_next.png)
