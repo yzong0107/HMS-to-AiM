@@ -30,3 +30,15 @@
 8. Go to the next record, and proceed.
 
    ![res next](images/res_next.png)
+
+
+
+# Exceptions
+
+1. In some cases, the mandatory location field is missing, capture the error.
+
+   ![exception1](images/res_exception1.png)
+
+   change status to "Request for Cancel"(**to be changed**), auto fill location to "Lister Center 1-050 Meeting Room" (**to be changed**)
+
+   ![exception2](images/res_exception2.png)
