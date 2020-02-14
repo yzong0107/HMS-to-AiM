@@ -18,3 +18,21 @@
 # WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//option[. = 'Normal']")))
 # dropdown.find_element(By.XPATH, "//option[. = 'Normal']").click()
 # self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority").click()
+
+
+import xlwt
+import openpyxl
+import time
+from datetime import datetime
+
+wb = openpyxl.load_workbook("Logs.xlsx")
+ws = wb.worksheets[0]
+id = ws.cell(row=ws.max_row,column=1).value
+print (id,type(id))
+new_data = [[1,"123456","78910","Processed",datetime.now(),""],
+            [2,"654321","01987","Error","","Error message Location is a mandatory field"]]
+
+for row in new_data:
+    ws.append(row)
+
+wb.save("Logs.xlsx")

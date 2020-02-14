@@ -10,7 +10,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import getpass
 import traceback
-import sys
+import openpyxl
+from datetime import datetime
 
 class AiM():
     def setup_method(self):
@@ -118,17 +119,21 @@ class ResCenter():
 
         self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
-        self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
-        # pop_message = self.driver.find_element_by_css_selector(".alert > span").text
-        # pop_message = self.driver.find_element_by_css_selector("ul:nth-child(3) > li").text
-        # if pop_message=="Work Order successfully updated":
-        #     self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
-        #     return True,None
-        # else:
-        #     self.driver.find_element(By.ID,"ctl00_mainContent_btnTopCancel_CBORDLinkButton").click()
-        #     WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton")))
-        #     self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
-        #     return False,pop_message
+        # self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+        pop_message = self.driver.find_element_by_css_selector(".alert > span").text
+        if pop_message=="Work Order successfully updated":
+            self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+            return True,None
+        else: # location cell missing
+            # self.driver.find_element(By.ID,"ctl00_mainContent_btnTopCancel_CBORDLinkButton").click()
+            # WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton")))
+            error = self.driver.find_element_by_css_selector("ul:nth-child(3) > li").text
+            self.driver.find_element(By.ID,"ctl00_mainContent_FacilityLookup_txtFacilityNameSearch").send_keys("Lister Center 1-050 Meeting Room") # hard coded to a fixed value
+            self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Request for Cancel']").click() # hard coded to a fixed value
+            self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
+            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
+            self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
+            return False,error
 
 if __name__ == '__main__':
     start_time = time.time()
@@ -145,17 +150,28 @@ if __name__ == '__main__':
     res_window.search()
 
     try:
-        for i in range(1):
+        wb = openpyxl.load_workbook("Logs.xlsx")
+        ws = wb.worksheets[0]
+        id = ws.cell(row=ws.max_row,column=1).value # get the id of last row
+        if id=="ID":
+            id = 0 # initial id
+        for i in range(3):
+            id += 1
             res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
             aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
-            res_window.edit(aim_CR)
-            print("ResCenter WO# {0} has been processed!".format(res_Wo))
-            # saved,message= res_window.edit(aim_CR) # update in ResCenter
-            # if saved:
-            #     print ("ResCenter WO# {0} has been processed!".format(res_Wo))
-            # else:
-            #     print ("Errors on WO# {0}! {1}".format(res_Wo,message))
+            # res_window.edit(aim_CR)
+            # print("ResCenter WO# {0} has been processed!".format(res_Wo))
+            saved,error_message= res_window.edit(aim_CR) # update in ResCenter
 
+            if saved:
+                new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
+                print ("ResCenter WO# {0} has been processed!".format(res_Wo))
+            else:
+                new_row = [id, res_Wo, aim_CR, "Error", "", error_message]
+                print ("Errors on WO# {0}! {1}".format(res_Wo,error_message))
+            ws.append(new_row)
+
+        wb.save("Logs.xlsx") # save to the log excel file
     except:
         # if there is any error, stops
         print(traceback.format_exc())
