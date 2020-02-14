@@ -81,6 +81,9 @@ class ResCenter():
         self.driver.find_element(By.LINK_TEXT, "Maintenance").click()
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Work Orders")))
         self.driver.find_element(By.LINK_TEXT, "Work Orders").click()
+        # """test for missing location records"""
+        # self.driver.find_element(By.ID,"ctl00_mainContent_txtWOIDNum_cbTextBox").send_keys("131493")
+        # """    """
         self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
         dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus")
         dropdown.find_element(By.XPATH, "//option[. = 'NEW']").click()
@@ -127,9 +130,16 @@ class ResCenter():
         else: # location cell missing
             # self.driver.find_element(By.ID,"ctl00_mainContent_btnTopCancel_CBORDLinkButton").click()
             # WebDriverWait(self.driver,10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton")))
-            error = self.driver.find_element_by_css_selector("ul:nth-child(3) > li").text
+            error = self.driver.find_element_by_css_selector("ul:nth-child(3)").text
+            self.driver.find_element_by_css_selector(".fa-close").click()
+
             self.driver.find_element(By.ID,"ctl00_mainContent_FacilityLookup_txtFacilityNameSearch").send_keys("Lister Center 1-050 Meeting Room") # hard coded to a fixed value
-            self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Request for Cancel']").click() # hard coded to a fixed value
+            self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Request for Cancel']").click()  # hard coded to a fixed value
+            self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOType']/option[text()='General']").click()
+            self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOPriority']/option[text()='Normal']").click()
+
+            self.driver.find_element(By.ID,"ctl00_mainContent_FacilityLookup_btnSearch_CBORDLinkButton").click()
+            time.sleep(1)
             self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
             WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
             self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
