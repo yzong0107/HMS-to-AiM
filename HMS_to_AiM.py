@@ -38,6 +38,15 @@ class AiM():
         self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:locZoomType1:locZoomType1-2").send_keys(property)
         self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CRQ_EDIT_content\\3AlocZoomType1\\3AlocZoomType1-2_button > .halflings").click()
         self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:referenceNoValueType1").send_keys(reference)
+        self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:connamevalueType1").send_keys("Norene Stasiewich")
+        self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:conphValueType1").send_keys("7804920162")
+        self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:conmcValueType1").send_keys("norene1@ualberta.ca")
+
+        if len(aim_des)>255: #extends word limit in normal description area
+            self.driver.find_element(By.ID,"mainForm:sideButtonPanel:moreMenu_0").click()
+            self.driver.find_element(By.ID,"mainForm:ae_p_req_e_long_desc").send_keys(aim_des)
+            self.driver.find_element(By.ID,"mainForm:buttonPanel:done").click()
+
         self.driver.find_element(By.ID, "mainForm:buttonPanel:save").click()
         aim_CR = self.driver.find_element(By.ID,"mainForm:CRQ_VIEW_content:ae_p_req_e_doc_no").text
         self.driver.find_element(By.ID,"mainForm:headerInclude:aimTitle1").click()
