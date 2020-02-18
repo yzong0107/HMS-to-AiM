@@ -117,8 +117,11 @@ class ResCenter():
         # time.sleep(100)
 
         self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
+        time.sleep(0.1)
         self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOType']/option[text()='General']").click()
+        time.sleep(0.1)
         self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOPriority']/option[text()='Normal']").click()
+        time.sleep(0.1)
 
         self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
