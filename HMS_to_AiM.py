@@ -81,19 +81,22 @@ class ResCenter():
         self.driver.find_element(By.LINK_TEXT, "Maintenance").click()
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Work Orders")))
         self.driver.find_element(By.LINK_TEXT, "Work Orders").click()
-        # """test for missing location records"""
-        # self.driver.find_element(By.ID,"ctl00_mainContent_txtWOIDNum_cbTextBox").send_keys("131493")
-        # """    """
         self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
         dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus")
         dropdown.find_element(By.XPATH, "//option[. = 'NEW']").click()
         self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
+        # """test for handling last record, and end the program"""
+        # time.sleep(0.5)
+        # self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOType']/option[text()='UCR']").click()
+        # """    """
         self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_btnRunSearch_CBORDLinkButton > .btn-text").click()
 
     def top_record(self):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton")))
-        self.driver.find_element(By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton").click()
-
+        try:
+            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton")))
+            self.driver.find_element(By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton").click()
+        except: #Timeout exception
+            return (None,None,None)
         WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre")))
         description_res = self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre").text
         WO_res = self.driver.find_element(By.ID, "ctl00_mainContent_txtWOIDNum_cbTextBox").get_attribute("value")
@@ -114,7 +117,6 @@ class ResCenter():
         actions.key_up(Keys.CONTROL)
         actions.send_keys("AiM CR "+aim_cr+" - ")
         actions.perform()
-        # time.sleep(100)
 
         self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
         time.sleep(0.5)
@@ -162,6 +164,7 @@ if __name__ == '__main__':
 
     res_window.search()
 
+    count = 0
     try:
         wb = openpyxl.load_workbook("Logs.xlsx")
         ws = wb.worksheets[0]
@@ -171,25 +174,27 @@ if __name__ == '__main__':
         for i in range(3):
             id += 1
             res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
-            aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
-            # res_window.edit(aim_CR)
-            # print("ResCenter WO# {0} has been processed!".format(res_Wo))
-            saved,error_message= res_window.edit(aim_CR) # update in ResCenter
-
-            if saved:
-                new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
-                print ("ResCenter WO# {0} has been processed!".format(res_Wo))
+            if res_Wo is not None: # processed all data
+                aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
+                # res_window.edit(aim_CR)
+                # print("ResCenter WO# {0} has been processed!".format(res_Wo))
+                saved,error_message= res_window.edit(aim_CR) # update in ResCenter
+                if saved:
+                    new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
+                    print ("ResCenter WO# {0} has been processed!".format(res_Wo))
+                else:
+                    new_row = [id, res_Wo, aim_CR, "Error", "", error_message]
+                    print ("Errors on WO# {0}! {1}".format(res_Wo,error_message))
+                ws.append(new_row)
             else:
-                new_row = [id, res_Wo, aim_CR, "Error", "", error_message]
-                print ("Errors on WO# {0}! {1}".format(res_Wo,error_message))
-            ws.append(new_row)
-
+                break
+            count += 1
         wb.save("Logs.xlsx") # save to the log excel file
     except:
-        # if there is any error, stops
+        # if there is any other errors, stops
         print(traceback.format_exc())
-        time.sleep(100)
+        # time.sleep(100)
 
     time_taken = time.time()-start_time
-    print ("Time taken {0}s".format(time_taken))
-    time.sleep(100)
+    print("Finished! {} of records are processed!".format(count))
+    print ("Time taken: {:.2f}s ({:.2f}min)".format(time_taken,time_taken/60.))
