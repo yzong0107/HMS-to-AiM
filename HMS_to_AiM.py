@@ -1,4 +1,4 @@
-__author__ = "Tim Zong"
+__author__ = "Tim Zong(yzong@ualberta.ca)"
 import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
