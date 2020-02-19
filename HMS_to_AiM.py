@@ -186,10 +186,11 @@ if __name__ == '__main__':
                     new_row = [id, res_Wo, aim_CR, "Error", "", error_message]
                     print ("Errors on WO# {0}! {1}".format(res_Wo,error_message))
                 ws.append(new_row)
+                wb.save("Logs.xlsx")
             else:
                 break
             count += 1
-        wb.save("Logs.xlsx") # save to the log excel file
+        # wb.save("Logs.xlsx") # save to the log excel file
     except:
         # if there is any other errors, stops
         print(traceback.format_exc())
