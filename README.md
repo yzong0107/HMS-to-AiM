@@ -1,6 +1,6 @@
 # To Run the program
 
-1. Double click run.bat file.
+1. Double click run.bat file. Make sure Logs.xlsx is **NOT** open.
 
 2. Fill in the AiM/ResCenter login username and password in the command line window, note that the password won't be shown on the screen. Click enter and the program will continue.
 
