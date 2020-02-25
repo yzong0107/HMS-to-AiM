@@ -59,6 +59,7 @@ class ResCenter():
     def setup_method(self):
         self.driver = webdriver.Chrome()
         self.vars = {}
+        self.time_out_sec = 10
 
     def teardown_method(self):
         self.driver.quit()
@@ -75,11 +76,11 @@ class ResCenter():
 
     def search(self):
         # self.driver.find_element(By.CSS_SELECTOR, ".fa-bars").click()
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "FacilitiesModule")))
+        WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.ID, "FacilitiesModule")))
         self.driver.find_element(By.ID, "FacilitiesModule").click()
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Maintenance")))
+        WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.LINK_TEXT, "Maintenance")))
         self.driver.find_element(By.LINK_TEXT, "Maintenance").click()
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.LINK_TEXT, "Work Orders")))
+        WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.LINK_TEXT, "Work Orders")))
         self.driver.find_element(By.LINK_TEXT, "Work Orders").click()
         self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus").click()
         dropdown = self.driver.find_element(By.ID, "ctl00_mainContent_ddWOStatus")
@@ -93,18 +94,18 @@ class ResCenter():
 
     def top_record(self):
         try:
-            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton")))
+            WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton")))
             self.driver.find_element(By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton").click()
         except: #Timeout exception
             return (None,None,None)
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre")))
+        WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre")))
         description_res = self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre").text
         WO_res = self.driver.find_element(By.ID, "ctl00_mainContent_txtWOIDNum_cbTextBox").get_attribute("value")
         location_res = self.driver.find_element(By.ID, "ctl00_mainContent_FacilityLookup_txtFacilityNameSearch").get_attribute("value")
         return (WO_res,description_res,location_res)
 
     def edit(self,aim_cr):
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton")))
+        WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton")))
         self.driver.find_element(By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton").click()
 
         time.sleep(2) # explicitly wait for 2 seconds before the page is updated
@@ -126,7 +127,7 @@ class ResCenter():
         time.sleep(0.5)
 
         self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
-        WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
+        WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
         # self.driver.find_element(By.ID, "ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
         pop_message = self.driver.find_element_by_css_selector(".alert > span").text
         if pop_message=="Work Order successfully updated":
@@ -146,7 +147,7 @@ class ResCenter():
             self.driver.find_element(By.ID,"ctl00_mainContent_FacilityLookup_btnSearch_CBORDLinkButton").click()
             time.sleep(1)
             self.driver.find_element(By.ID, "ctl00_mainContent_btnTopSave_CBORDLinkButton").click()
-            WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
+            WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.CSS_SELECTOR, " .alert")))
             self.driver.find_element(By.ID,"ctl00_mainContent_btnTopClose_CBORDLinkButton").click()
             return False,error
 
@@ -171,7 +172,7 @@ if __name__ == '__main__':
         id = ws.cell(row=ws.max_row,column=1).value # get the id of last row
         if id=="ID":
             id = 0 # initial id
-        for i in range(3):
+        for i in range(9):
             id += 1
             res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
             if res_Wo is not None: # processed all data
@@ -183,8 +184,8 @@ if __name__ == '__main__':
                     new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
                     print ("ResCenter WO# {0} has been processed!".format(res_Wo))
                 else:
-                    new_row = [id, res_Wo, aim_CR, "Error", "", error_message]
-                    print ("Errors on WO# {0}! {1}".format(res_Wo,error_message))
+                    new_row = [id, res_Wo, aim_CR, "Processed(with error)", datetime.now(), error_message+" Default location applied."]
+                    print ("Errors on WO# {0}! {1}".format(res_Wo,error_message+" Default location applied."))
                 ws.append(new_row)
                 wb.save("Logs.xlsx")
             else:
