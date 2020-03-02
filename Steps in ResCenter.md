@@ -35,10 +35,14 @@
 
 # Exceptions
 
-1. In some cases, the mandatory location field is missing, capture the error.
+1. If WO type is either "Contractor" or "Pest Control", then this record **won't** be logged into AiM, and status will be changed to "**Pending ASIWC Approval**".
+
+2. In some cases, the mandatory location field is missing, capture the error.
 
    ![exception1](images/res_exception1.png)
 
-   change status to "Request for Cancel"(**to be changed**), auto fill location to "Lister Center 1-050 Meeting Room" (**to be changed**)
+   change status to "Pending ASIWC Approval", auto fill location to "ASIWC Office"
 
    ![exception2](images/res_exception2.png)
+
+   
