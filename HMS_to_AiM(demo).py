@@ -208,7 +208,8 @@ if __name__ == '__main__':
         # if there is any other errors, stops
         print(traceback.format_exc())
 
-
     time_taken = time.time()-start_time
+    print ("")
+    print ("***************************************")
     print("Finished! {} of records are processed!".format(count))
     print ("Time taken: {:.2f}s ({:.2f}min)".format(time_taken,time_taken/60.))
