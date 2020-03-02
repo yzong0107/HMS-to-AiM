@@ -182,11 +182,11 @@ if __name__ == '__main__':
                 saved, error_message = res_window.edit(aim_cr=None)  # update in ResCenter
                 if saved:
                     new_row = [id, res_Wo, None, "Not Processed",datetime.now(),"Need further review, as WO type is {}.".format(WO_type)]
-                    print ("ResCenter WO# {0} has not been logged into AiM!".format(res_Wo))
+                    print ("ResCenter WO# {0} has NOT been logged into AiM!".format(res_Wo))
                 else:
                     extra_notes = "Need further review, as WO type is {}.\n".format(WO_type)
                     new_row = [id, res_Wo, None, "Not Processed", datetime.now(), extra_notes+error_message+" Default location applied."]
-                    print ("ResCenter WO# {0} has not been logged into AiM!".format(res_Wo))
+                    print ("ResCenter WO# {0} has NOT been logged into AiM!".format(res_Wo))
                 ws.append(new_row)
                 wb.save("Logs.xlsx")
             elif res_Wo is not None: # processed all data
