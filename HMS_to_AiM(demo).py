@@ -12,6 +12,7 @@ import getpass
 import traceback
 import openpyxl
 from selenium.webdriver.support.ui import Select
+from datetime import datetime
 
 class AiM():
     def setup_method(self):
@@ -111,19 +112,21 @@ class ResCenter():
         self.driver.find_element(By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton").click()
 
         time.sleep(2) # explicitly wait for 2 seconds before the page is updated
+        if aim_cr is not None:
+            actions = ActionChains(self.driver)
+            actions.move_to_element(self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_FancyTextBoxTextArea"))
+            actions.click()
+            actions.key_down(Keys.CONTROL)
+            actions.send_keys(Keys.HOME)
+            actions.key_up(Keys.CONTROL)
+            actions.send_keys("AiM CR "+aim_cr+" - ")
+            actions.perform()
+            self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
+            time.sleep(0.5)
+            self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOType']/option[text()='General']").click()
+        else:
+            self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Pending ASIWC Approval']").click()
 
-        actions = ActionChains(self.driver)
-        actions.move_to_element(self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_FancyTextBoxTextArea"))
-        actions.click()
-        actions.key_down(Keys.CONTROL)
-        actions.send_keys(Keys.HOME)
-        actions.key_up(Keys.CONTROL)
-        actions.send_keys("AiM CR "+aim_cr+" - ")
-        actions.perform()
-
-        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
-        time.sleep(0.5)
-        self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOType']/option[text()='General']").click()
         time.sleep(0.5)
         self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOPriority']/option[text()='Normal']").click()
         time.sleep(0.5)
@@ -172,29 +175,39 @@ if __name__ == '__main__':
         id = ws.cell(row=ws.max_row,column=1).value # get the id of last row
         if id=="ID":
             id = 0 # initial id
-        for i in range(1):
+        for i in range(5):
             id += 1
             res_Wo,res_des,res_loc,WO_type = res_window.top_record() # read top record in ResCenter
-            print (res_Wo,WO_type)
-            # if res_Wo is not None: # processed all data
-            #     aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
-            #     saved,error_message= res_window.edit(aim_CR) # update in ResCenter
-            #     if saved:
-            #         new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
-            #         print ("ResCenter WO# {0} has been processed!".format(res_Wo))
-            #     else:
-            #         new_row = [id, res_Wo, aim_CR, "Processed(with error)", datetime.now(), error_message+" Default location applied."]
-            #         print ("Errors on WO# {0}! {1}".format(res_Wo,error_message+" Default location applied."))
-            #     ws.append(new_row)
-            #     wb.save("Logs.xlsx")
-            # else:
-            #     break
+            if WO_type=="Pest Control" or WO_type=="Contractor":
+                saved, error_message = res_window.edit(aim_cr=None)  # update in ResCenter
+                if saved:
+                    new_row = [id, res_Wo, None, "Not Processed",datetime.now(),"Need further review, as WO type is {}.".format(WO_type)]
+                    print ("ResCenter WO# {0} has not been logged into AiM!".format(res_Wo))
+                else:
+                    extra_notes = "Need further review, as WO type is {}.\n".format(WO_type)
+                    new_row = [id, res_Wo, None, "Not Processed", datetime.now(), extra_notes+error_message+" Default location applied."]
+                    print ("ResCenter WO# {0} has not been logged into AiM!".format(res_Wo))
+                ws.append(new_row)
+                wb.save("Logs.xlsx")
+            elif res_Wo is not None: # processed all data
+                aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
+                saved,error_message= res_window.edit(aim_CR) # update in ResCenter
+                if saved:
+                    new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
+                    print ("ResCenter WO# {0} has been logged into AiM!".format(res_Wo))
+                else:
+                    new_row = [id, res_Wo, aim_CR, "Processed(with error)", datetime.now(), error_message+" Default location applied."]
+                    print ("ResCenter WO# {0} has been logged into AiM! {1}".format(res_Wo,error_message+" Default location applied."))
+                ws.append(new_row)
+                wb.save("Logs.xlsx")
+            else:
+                break
             count += 1
         # wb.save("Logs.xlsx") # save to the log excel file
     except:
         # if there is any other errors, stops
         print(traceback.format_exc())
-        # time.sleep(100)
+
 
     time_taken = time.time()-start_time
     print("Finished! {} of records are processed!".format(count))
