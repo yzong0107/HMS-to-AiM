@@ -11,7 +11,7 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import getpass
 import traceback
 import openpyxl
-from datetime import datetime
+from selenium.webdriver.support.ui import Select
 
 class AiM():
     def setup_method(self):
@@ -97,12 +97,14 @@ class ResCenter():
             WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton")))
             self.driver.find_element(By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton").click()
         except: #Timeout exception
-            return (None,None,None)
+            return (None,None,None,None)
         WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre")))
         description_res = self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre").text
         WO_res = self.driver.find_element(By.ID, "ctl00_mainContent_txtWOIDNum_cbTextBox").get_attribute("value")
         location_res = self.driver.find_element(By.ID, "ctl00_mainContent_FacilityLookup_txtFacilityNameSearch").get_attribute("value")
-        return (WO_res,description_res,location_res)
+        options = Select(self.driver.find_element(By.ID, "ctl00_mainContent_ddWOType"))
+        WO_type = options.first_selected_option.text
+        return (WO_res,description_res,location_res,WO_type)
 
     def edit(self,aim_cr):
         WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton")))
@@ -170,24 +172,23 @@ if __name__ == '__main__':
         id = ws.cell(row=ws.max_row,column=1).value # get the id of last row
         if id=="ID":
             id = 0 # initial id
-        for i in range(3):
+        for i in range(1):
             id += 1
-            res_Wo,res_des,res_loc = res_window.top_record() # read top record in ResCenter
-            if res_Wo is not None: # processed all data
-                aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
-                # res_window.edit(aim_CR)
-                # print("ResCenter WO# {0} has been processed!".format(res_Wo))
-                saved,error_message= res_window.edit(aim_CR) # update in ResCenter
-                if saved:
-                    new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
-                    print ("ResCenter WO# {0} has been processed!".format(res_Wo))
-                else:
-                    new_row = [id, res_Wo, aim_CR, "Processed(with error)", datetime.now(), error_message+" Default location applied."]
-                    print ("Errors on WO# {0}! {1}".format(res_Wo,error_message+" Default location applied."))
-                ws.append(new_row)
-                wb.save("Logs.xlsx")
-            else:
-                break
+            res_Wo,res_des,res_loc,WO_type = res_window.top_record() # read top record in ResCenter
+            print (res_Wo,WO_type)
+            # if res_Wo is not None: # processed all data
+            #     aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
+            #     saved,error_message= res_window.edit(aim_CR) # update in ResCenter
+            #     if saved:
+            #         new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
+            #         print ("ResCenter WO# {0} has been processed!".format(res_Wo))
+            #     else:
+            #         new_row = [id, res_Wo, aim_CR, "Processed(with error)", datetime.now(), error_message+" Default location applied."]
+            #         print ("Errors on WO# {0}! {1}".format(res_Wo,error_message+" Default location applied."))
+            #     ws.append(new_row)
+            #     wb.save("Logs.xlsx")
+            # else:
+            #     break
             count += 1
         # wb.save("Logs.xlsx") # save to the log excel file
     except:
