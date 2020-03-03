@@ -18,8 +18,11 @@
 # WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, "//option[. = 'Normal']")))
 # dropdown.find_element(By.XPATH, "//option[. = 'Normal']").click()
 # self.driver.find_element(By.ID, "ctl00_mainContent_ddWOPriority").click()
-
+from selenium import webdriver
+driver = webdriver.Chrome()
+driver.get("https://www.aimdemo.ualberta.ca/fmax/login")
 print ("Hello world")
+
 #
 # import xlwt
 # import openpyxl
