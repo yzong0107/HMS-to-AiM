@@ -175,7 +175,7 @@ if __name__ == '__main__':
         id = ws.cell(row=ws.max_row,column=1).value # get the id of last row
         if id=="ID":
             id = 0 # initial id
-        for i in range(5):
+        while True:
             id += 1
             res_Wo,res_des,res_loc,WO_type = res_window.top_record() # read top record in ResCenter
             if WO_type=="Pest Control" or WO_type=="Contractor":
@@ -213,3 +213,4 @@ if __name__ == '__main__':
     print ("***************************************")
     print("Finished! {} of records are processed!".format(count))
     print ("Time taken: {:.2f}s ({:.2f}min)".format(time_taken,time_taken/60.))
+    print("***************************************")
