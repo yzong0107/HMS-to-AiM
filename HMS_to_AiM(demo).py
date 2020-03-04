@@ -119,7 +119,7 @@ class ResCenter():
             actions.key_down(Keys.CONTROL)
             actions.send_keys(Keys.HOME)
             actions.key_up(Keys.CONTROL)
-            actions.send_keys("AiM CR "+aim_cr+" - . "+"Your request has been received and assigned to maintenance staff who will visit your unit to attend to the issue(s) reported in order of priority. This email serves as Notice of Entry. Thank you for your patience.")
+            actions.send_keys("AiM CR "+aim_cr+" - . "+"Your request has been received and assigned to maintenance staff who will visit your unit to attend to the issue(s) reported in order of priority. This email serves as Notice of Entry. Thank you for your patience.\n")
             actions.perform()
             self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
             time.sleep(0.5)
