@@ -36,7 +36,9 @@ class AiM():
         self.driver.find_element(By.ID, "mainForm:menuListMain:CUSTSERVICE").click()
         self.driver.find_element(By.ID, "mainForm:menuListMain:new_CRQ_VIEW").click()
         aim_des = location + " - " + description
+        time.sleep(1)
         self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:ae_p_req_e_description").send_keys(aim_des)
+        time.sleep(0.5)
         self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:locZoomType1:locZoomType1-2").send_keys(property)
         self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CRQ_EDIT_content\\3AlocZoomType1\\3AlocZoomType1-2_button > .halflings").click()
         time.sleep(1)
