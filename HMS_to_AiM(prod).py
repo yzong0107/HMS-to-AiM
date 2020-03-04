@@ -39,6 +39,7 @@ class AiM():
         self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:ae_p_req_e_description").send_keys(aim_des)
         self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:locZoomType1:locZoomType1-2").send_keys(property)
         self.driver.find_element(By.CSS_SELECTOR, "#mainForm\\3A CRQ_EDIT_content\\3AlocZoomType1\\3AlocZoomType1-2_button > .halflings").click()
+        time.sleep(1)
         self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:referenceNoValueType1").send_keys(reference)
         self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:connamevalueType1").send_keys("Norene Stasiewich")
         self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:conphValueType1").send_keys("7804920162")
