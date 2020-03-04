@@ -45,7 +45,7 @@ class AiM():
         self.driver.find_element(By.ID, "mainForm:CRQ_EDIT_content:referenceNoValueType1").send_keys(reference)
         self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:connamevalueType1").send_keys("Norene Stasiewich")
         self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:conphValueType1").send_keys("7804920162")
-        self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:conmcValueType1").send_keys("norene1@ualberta.ca")
+        self.driver.find_element(By.ID,"mainForm:CRQ_EDIT_content:conmcValueType1").send_keys("asiwc@ualberta.ca")
 
         if len(aim_des)>255: #extends word limit in normal description area
             self.driver.find_element(By.ID,"mainForm:sideButtonPanel:moreMenu_0").click()
@@ -123,7 +123,7 @@ class ResCenter():
             actions.key_down(Keys.CONTROL)
             actions.send_keys(Keys.HOME)
             actions.key_up(Keys.CONTROL)
-            actions.send_keys("AiM CR "+aim_cr+" - . "+"Your request has been received and assigned to maintenance staff who will visit your unit to attend to the issue(s) reported in order of priority. This email serves as Notice of Entry. Thank you for your patience.\n")
+            actions.send_keys("AiM CR "+aim_cr+". "+"Your request has been received and assigned to maintenance staff who will visit your unit to attend to the issue(s) reported in order of priority. This email serves as Notice of Entry. Thank you for your patience.\n")
             actions.perform()
             self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
             time.sleep(0.5)
