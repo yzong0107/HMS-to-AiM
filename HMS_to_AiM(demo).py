@@ -187,8 +187,7 @@ if __name__ == '__main__':
         id = ws.cell(row=ws.max_row,column=1).value # get the id of last row
         if id=="ID":
             id = 0 # initial id
-        # while True:
-        for i in range(6):
+        while True:
             id += 1
             res_Wo,res_des,res_loc,WO_type,email_to_notify = res_window.top_record() # read top record in ResCenter
             if WO_type=="Pest Control" or WO_type=="Contractor":
