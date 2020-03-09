@@ -109,13 +109,21 @@ class ResCenter():
         location_res = self.driver.find_element(By.ID, "ctl00_mainContent_FacilityLookup_txtFacilityNameSearch").get_attribute("value")
         options = Select(self.driver.find_element(By.ID, "ctl00_mainContent_ddWOType"))
         WO_type = options.first_selected_option.text
-        return (WO_res,description_res,location_res,WO_type)
+        email_to_notify = self.driver.find_element(By.ID,"ctl00_mainContent_txtRqstrEmail_cbTextBox").get_attribute("value")
+        staff_email_to_notify = self.driver.find_element(By.ID,"ctl00_mainContent_txtNotifyEmail_cbTextBox").get_attribute("value")
+        if len(staff_email_to_notify)!=0:
+            email_to_notify = ","+email_to_notify
+        return (WO_res,description_res,location_res,WO_type,email_to_notify)
 
-    def edit(self,aim_cr):
+    def edit(self,aim_cr,email):
         WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton")))
         self.driver.find_element(By.ID,"ctl00_mainContent_btnTopEdit_CBORDLinkButton").click()
-
         time.sleep(2) # explicitly wait for 2 seconds before the page is updated
+
+        """March 09, 2020 copy paste email address"""
+        self.driver.find_element(By.ID, "ctl00_mainContent_txtNotifyEmail_cbTextBox").send_keys(email)
+        """"End"""
+
         if aim_cr is not None:
             actions = ActionChains(self.driver)
             actions.move_to_element(self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_FancyTextBoxTextArea"))
@@ -181,9 +189,9 @@ if __name__ == '__main__':
             id = 0 # initial id
         while True:
             id += 1
-            res_Wo,res_des,res_loc,WO_type = res_window.top_record() # read top record in ResCenter
+            res_Wo,res_des,res_loc,WO_type,email_to_notify = res_window.top_record() # read top record in ResCenter
             if WO_type=="Pest Control" or WO_type=="Contractor":
-                saved, error_message = res_window.edit(aim_cr=None)  # update in ResCenter
+                saved, error_message = res_window.edit(aim_cr=None,email=email_to_notify)  # update in ResCenter
                 if saved:
                     new_row = [id, res_Wo, None, "Not Processed",datetime.now(),"Need further review, as WO type is {}.".format(WO_type)]
                     print ("ResCenter WO# {0} has NOT been logged into AiM!".format(res_Wo))
@@ -195,7 +203,7 @@ if __name__ == '__main__':
                 wb.save("Logs.xlsx")
             elif res_Wo is not None: # processed all data
                 aim_CR = aim_window.customer_request(res_des,res_Wo,res_loc) # Log AiM Customer Request
-                saved,error_message= res_window.edit(aim_CR) # update in ResCenter
+                saved,error_message= res_window.edit(aim_CR,email_to_notify) # update in ResCenter
                 if saved:
                     new_row = [id, res_Wo, aim_CR, "Processed",datetime.now(),""]
                     print ("ResCenter WO# {0} has been logged into AiM!".format(res_Wo))
@@ -207,7 +215,7 @@ if __name__ == '__main__':
             else:
                 break
             count += 1
-        # wb.save("Logs.xlsx") # save to the log excel file
+
     except:
         # if there is any other errors, stops
         print(traceback.format_exc())
