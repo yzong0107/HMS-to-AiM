@@ -101,7 +101,7 @@ class ResCenter():
             WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton")))
             self.driver.find_element(By.ID, "ctl00_mainContent_radgridWorkOrders_ctl00_ctl04_btnSelect_CBORDLinkButton").click()
         except: #Timeout exception
-            return (None,None,None,None)
+            return (None,None,None,None,None)
         WebDriverWait(self.driver, self.time_out_sec).until(EC.presence_of_element_located((By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre")))
         time.sleep(1)
         description_res = self.driver.find_element(By.CSS_SELECTOR, "#ctl00_mainContent_txtDescription_ReadOnlyBox pre").text
@@ -131,7 +131,7 @@ class ResCenter():
             actions.key_down(Keys.CONTROL)
             actions.send_keys(Keys.HOME)
             actions.key_up(Keys.CONTROL)
-            actions.send_keys("AiM CR "+aim_cr+". "+"Your request has been received and assigned to maintenance staff who will visit your unit to attend to the issue(s) reported in order of priority. This email serves as Notice of Entry. Thank you for your patience.\n")
+            actions.send_keys("AiM CR "+aim_cr+". "+"Your request has been received and assigned to maintenance staff who will visit your unit/space to attend to the issue(s) reported in order of priority. This email serves as Notice of Entry. Thank you for your patience.\n")
             actions.perform()
             self.driver.find_element_by_xpath("//select[@name='ctl00$mainContent$ddWOStatus']/option[text()='Assigned']").click()
             time.sleep(0.5)
