@@ -17,7 +17,7 @@ openpyxl==3.0.3
 packaging==19.2
 pandas==0.25.2
 pluggy==0.13.0
-py==1.8.0
+py==1.10.0
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
 pyparsing==2.4.4
